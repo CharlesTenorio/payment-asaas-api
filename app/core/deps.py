@@ -13,7 +13,7 @@ class TokenData(BaseModel):
     username : Optional[str] = None
 
 
-async def get_session()->Generator:
+async def get_session()-> Generator:
     session: AsyncSession = Session()
     try:
         yield session
