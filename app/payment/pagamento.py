@@ -8,6 +8,8 @@ asaas = Asaas(
     access_token= settings.API_KEY_ASAAS,
     production = False
 )
+
+            
 def GetClienteId(cli :Costumer):
     new_customer = asaas.customers.new(
         name = cli.name,
@@ -52,4 +54,13 @@ def payment(cli :Costumer, card: Cartao, cliCard: CliCardHolderInfo, totalCompra
     
     
     
+def pagamento_pix(cli :Costumer, totalCompra: ValorCompra):
+    clipix = GetClienteId(cli)
+    pagamento = asaas.payments.new(
+            customer = clipix,
+            billingType = BillingType.PIX,
+            value = totalCompra.valCompra,
+            dueDate = date.today()
+        )
+    return pagamento
     

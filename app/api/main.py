@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import status
 from model.compra_cartao import Cartao, CliCardHolderInfo, Costumer, ValorCompra
-from payment.pagamento import payment, GetClienteId
+from payment.pagamento import payment, GetClienteId, pagamento_pix
 
 app = FastAPI()
 
@@ -17,11 +17,16 @@ async def NewClient(cli :Costumer):
     
     return  new_customer
 
-@app.post("/api/v1/pagamento")
+@app.post("/api/v1/credito")
 async def NewPayment(cli :Costumer, card: Cartao, cliCard: CliCardHolderInfo, valor: ValorCompra):
     pg = payment(cli, card, cliCard, valor)
     return pg
 
+
+@app.post("/api/v1/pix")
+async def Pix(cli :Costumer, valor: ValorCompra):
+    result = pagamento_pix(cli, valor)
+    return result
 
 if __name__ == "__main__":
     import uvicorn
