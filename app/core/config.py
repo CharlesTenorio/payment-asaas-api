@@ -1,6 +1,6 @@
 import os
 from pydantic_settings import BaseSettings
-from sqlalchemy.ext.declarative import declarative_base 
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,8 +9,9 @@ token_jwt = os.getenv('JWT_SECRET_KEY')
 class Settings(BaseSettings):
    API_V1_STR: str = "/api/v1"
    API_KEY_ASAAS: str = api_key
-   DB_URL: str = 'sqlite:///./usuarios.db'
-   DBBASEModel = declarative_base()
+   USERNAME: str = os.getenv('USERNAME')
+   PASSWORD: str = os.getenv('PASSWORD')
+   ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 *24 * 7
    JWT_SECRET_KEY: str = token_jwt
    '''
      import secrets

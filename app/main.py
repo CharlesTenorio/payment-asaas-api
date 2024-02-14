@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.config import settings
-from api.v1 import api_router
+from api.v1.api import api_router
 
 app = FastAPI(title='API Pagamento', openapi_url=f'{settings.API_V1_STR}/openapi.json')
 

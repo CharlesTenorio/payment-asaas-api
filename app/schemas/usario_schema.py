@@ -1,7 +1,7 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel as SCBaseModel, EmailStr
 
-class UsuarioSchemaBase(BaseModel):
+class UsuarioSchemaBase(SCBaseModel):
     id: Optional[int]=None
     nome: str
     email: EmailStr
