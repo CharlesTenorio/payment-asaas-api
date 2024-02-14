@@ -1,13 +1,41 @@
 from datetime import datetime, timedelta
-from fastapi import APIRouter, status, Depends, HTTPException, Response
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi.security import HTTPBearer
 from fastapi.security import OAuth2PasswordRequestForm
 import jwt
 from model.compra_cartao import Cartao, CliCardHolderInfo, Costumer, ValorCompra
-from payment.pagamento import payment, GetClienteId, pagamento_pix
+from payment.pagamento import payment, pagamento_pix
 from core.config import settings
+
+
 router = APIRouter()
 security = HTTPBearer()
+
+# Função para verificar o token JWT
+def verify_token(token: str = Depends(security)):
+    try:
+        # Verifica se o token está presente nos cabeçalhos da requisição
+        if not "Bearer" in token.scheme:
+            raise HTTPException(status_code=403, detail="Token não fornecido corretamente")
+
+        # Extrai o token da string "Bearer <token>"
+        token_value = token.credentials
+
+        # Decodifica o token JWT e verifica sua validade
+        payload = jwt.decode(token_value, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+
+        # Verifica se o token expirou
+        if "exp" in payload and payload["exp"] < datetime.utcnow().timestamp():
+            raise HTTPException(status_code=403, detail="Token expirado")
+
+        # Verifica se o token contém a chave "access_token" e se é verdadeira
+        if  payload["authorized"]==False:
+            raise HTTPException(status_code=403, detail="Token inválido")
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Token expirado")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Token inválido")
 
 
 @router.post("/login")
@@ -28,15 +56,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
 # Verificação do token JWT
-def verify_token(token: str = Depends(security)):
-    try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
-        if not payload.get("authorized"):
-            raise HTTPException(status_code=403, detail="Não autorizado")
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=403, detail="Token expirado")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=403, detail="Token inválido")
+
 
 @router.post("/credito", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_token)])
 async def NewPayment(cli :Costumer, card: Cartao, cliCard: CliCardHolderInfo, valor: ValorCompra):

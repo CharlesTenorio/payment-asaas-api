@@ -21,6 +21,9 @@ pyjwt = "^2.8.0"
 python-multipart = "^0.0.9"
 
 
+[tool.poetry.group.dev.dependencies]
+bpython = "^0.24"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
